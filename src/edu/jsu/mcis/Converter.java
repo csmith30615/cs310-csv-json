@@ -98,7 +98,8 @@ public class Converter {
         
         catch(Exception e) { return e.toString(); }
         
-        return jsonObject.toString().trim();
+        results = jsonObject.toString();
+        return results.trim();
         
     }
     
@@ -106,13 +107,46 @@ public class Converter {
         
         String results = "";
         
+        JSONArray colHeaders = new JSONArray();
+        JSONArray rowHeaders = new JSONArray();
+        JSONArray data = new JSONArray();
+        
         try {
 
             StringWriter writer = new StringWriter();
             CSVWriter csvWriter = new CSVWriter(writer, ',', '"', '\n');
             
-            // INSERT YOUR CODE HERE
+            JSONParser parser = new JSONParser();
             
+            JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
+            
+            rowHeaders = (JSONArray) jsonObject.get("rowHeaders");
+            colHeaders = (JSONArray) jsonObject.get("colHeaders");
+            data = (JSONArray) jsonObject.get("data");
+            
+            String[] leadingLine = new String[colHeaders.size()];
+            
+            for(int i = 0; i < colHeaders.size(); i++){
+                leadingLine[i] = (String) colHeaders.get(i);
+            }
+            
+            csvWriter.writeNext(leadingLine);
+            
+            for(int i = 0; i < rowHeaders.size(); i++){
+                JSONArray dataLine = (JSONArray) data.get(i);
+                String[] line = new String[dataLine.size() + 1];
+                
+                line[0] = (String) rowHeaders.get(i);
+                
+                for(int j = 0; j < dataLine.size(); j++){
+                    long tempData = (long) dataLine.get(j);
+                    line[j + 1] = String.valueOf(tempData);
+                }
+                
+                csvWriter.writeNext(line);
+            }
+            
+            results = writer.toString();
         }
         
         catch(Exception e) { return e.toString(); }
