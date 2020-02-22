@@ -60,6 +60,10 @@ public class Converter {
     public static String csvToJson(String csvString) {
         
         String results = "";
+        JSONArray colHeaders = new JSONArray();
+        JSONArray rowHeaders = new JSONArray();
+        JSONArray data = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
         
         try {
             
@@ -67,12 +71,34 @@ public class Converter {
             List<String[]> full = reader.readAll();
             Iterator<String[]> iterator = full.iterator();
             
-            // INSERT YOUR CODE HERE
+            String[] headers = iterator.next();
+            
+            for(String header: headers){
+                colHeaders.add(header);
+            }
+            
+            while(iterator.hasNext()){
+                String[] line = iterator.next();
+                
+                rowHeaders.add(line[0]);
+                
+                JSONArray temp = new JSONArray();
+                for(int i = 1; i < line.length; i++){
+                    temp.add(Integer.parseInt(line[i]));
+                }
+                
+                data.add(temp);
+            }
+            
+            jsonObject.put("colHeaders", colHeaders);
+            jsonObject.put("rowHeaders", rowHeaders);
+            jsonObject.put("data", data);
             
         }        
+        
         catch(Exception e) { return e.toString(); }
         
-        return results.trim();
+        return jsonObject.toString().trim();
         
     }
     
